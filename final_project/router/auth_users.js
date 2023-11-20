@@ -50,13 +50,26 @@ regd_users.post("/login", (req,res) => {
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
     const isbn = req.params.isbn;
-    const review = req.body.review;
     const username = req.session.authorization.username;
     console.log("add review: ", req.params, req.body, req.session);
     if (books[isbn]) {
+        let review = req.query.review;
         let book = books[isbn];
         book.reviews[username] = review;
-        return res.status(200).send("Review successfully posted");
+        return res.status(200).send(`The review for the book with ISBN  ${isbn} has been added/updated.`);
+    }
+    else {
+        return res.status(404).json({message: `ISBN ${isbn} not found`});
+    }
+});
+
+regd_users.delete("/auth/review/:isbn", (req,res) => {
+    const isbn = req.params.isbn;
+    const username = req.session.authorization.username;
+    if(books[isbn]) {
+        let book = books[isbn];
+        delete book.reviews[username];
+        return res.status(200).send(`The review for the book with ISBN ${isbn} has been deleted`);
     }
     else {
         return res.status(404).json({message: `ISBN ${isbn} not found`});
