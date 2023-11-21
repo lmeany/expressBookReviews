@@ -53,54 +53,109 @@ public_users.get('/', (req,res) => {
 //     res.send(books[isbn]);
 // });
 
-let getBookListIsbn = isbn => new Promise((resolve,reject) => {
+// Get book details based on ISBN using promise
+function getListBookIsbn(isbn) {
     let book = books[isbn];
-    if (book) {
-        resolve(book);
-    } else {
-        reject("Unable to find books!");
-    }
+    return new Promise((resolve,reject) => {
+        if(book) {
+            resolve(book);
+        }else {
+            reject("Unable to find Books!");
+        };
+    });
+};
+
+public_users.get("/isbn/:isbn", (req,res) => {
+    const isbn = req.params.isbn;
+    getListBookIsbn(isbn).then(
+        (book) => res.send(book),
+        (err) => res.send(err)
+    );
 })
 
-public_users,get('/isbn/:isbn', (req,res) => {
-    conts isbn = req.params.isbn;
-    getBookListIsbn.then((book) => {
-        res.send(JSON.stringify(book,null,4));
-    })
-})
-  
 // Get book details based on author
-public_users.get('/author/:author', (req, res) => {
-    let author = []
-    for(const [key, values] of Object.entries(books)){
-        const book = Object.entries(values);
-        for(let i = 0; i < book.length ; i++){
-            if(book[i][0] == 'author' && book[i][1] == req.params.author){
-                ans.push(books[key]);
+// public_users.get('/author/:author', (req, res) => {
+//     let author = []
+//     for(const [key, values] of Object.entries(books)){
+//         const book = Object.entries(values);
+//         for(let i = 0; i < book.length ; i++){
+//             if(book[i][0] == 'author' && book[i][1] == req.params.author){
+//                 ans.push(books[key]);
+//             }
+//         }
+//     }
+//     if(author.length == 0){
+//         return res.status(300).json({message: "Author not found"});
+//     }
+//     res.send(author);
+// });
+
+// Get book details based on author with promise
+function getListFromAuthor(author){
+    let authors = [];
+    return new Promise((resolve,reject) => {
+        for(var isbn in books) {
+            let book = books[isbn];
+            if(book.author === author){
+                authors.push(book);
             }
         }
-    }
-    if(author.length == 0){
-        return res.status(300).json({message: "Author not found"});
-    }
-    res.send(author);
+        if(authors.length>0){
+            resolve(authors);
+        }else{
+            reject("Unable to find Author!");
+        };
+    });
+};
+
+public_users.get("/author/:author", (req,res) => {
+    const author = req.params.author;
+    getListFromAuthor(author).then(
+        (book) => res.send(book),
+        (err) => res.send(err)
+    )
 });
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-    let title = [];
-    for(const [key,value] of Object.entries(books)){
-        const book = Object.entries(value);
-        for(let i = 0; i < book.length; i++){
-            if(book[i][0] == 'title' && book[i][1] == req.params.title){
-                title.push(books[key]);
+// public_users.get('/title/:title',function (req, res) {
+//     let title = [];
+//     for(const [key,value] of Object.entries(books)){
+//         const book = Object.entries(value);
+//         for(let i = 0; i < book.length; i++){
+//             if(book[i][0] == 'title' && book[i][1] == req.params.title){
+//                 title.push(books[key]);
+//             }
+//         }
+//     }
+//     if(title.length == 0){
+//         return res.status(300).json({message: "Title not found"});
+//     }
+//     res.send(title);
+// });
+
+function getListFromTitle(title){
+    let titles = [];
+    return new Promise((resolve,reject) => {
+        for(var isbn in books) {
+            let book = books[isbn];
+            if(book.title === title){
+                titles.push(book);
             }
         }
-    }
-    if(title.length == 0){
-        return res.status(300).json({message: "Title not found"});
-    }
-    res.send(title);
+        if(titles.length>0){
+            resolve(titles);
+        }else{
+            reject("Unable to find titles!");
+        };
+    });
+};
+
+public_users.get("/title/:title", (req,res) => {
+    const title = req.params.title;
+    getListFromTitle(title).then(
+        (book) => res.send(book),
+        (err) => res.send(err)
+    )
 });
 
 //  Get book review
