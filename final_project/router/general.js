@@ -37,41 +37,64 @@ public_users.post("/register", (req,res) => {
 // });
 
 // Get the book list available in the shop using promise
-let getBookList = new Promise((resolve,reject) => {
-    resolve(books);
-})
+// let getBookList = new Promise((resolve,reject) => {
+//     resolve(books);
+// })
 
-public_users.get('/', (req,res) => {
-    getBookList.then((books) => {
-        res.send(JSON.stringify(books,null,4))
-    });
-});
+// public_users.get('/', (req,res) => {
+//     getBookList.then((books) => {
+//         res.send(JSON.stringify(books,null,4))
+//     });
+// });
+
+// Get the book list available in the shop using async-await
+public_users.get('/', async function(req,res) {
+    let getBookList = new Promise((resolve,reject) => {
+        resolve(books);
+    })
+    res.status(200).json(await getBookList);
+})
 
 // Get book details based on ISBN
 // public_users.get('/isbn/:isbn',(req, res) => {
 //     const isbn = req.params.isbn;
+//     console.log(isbn);
 //     res.send(books[isbn]);
 // });
 
 // Get book details based on ISBN using promise
-function getListBookIsbn(isbn) {
-    let book = books[isbn];
-    return new Promise((resolve,reject) => {
-        if(book) {
-            resolve(book);
-        }else {
-            reject("Unable to find Books!");
-        };
-    });
-};
+// function getListBookIsbn(isbn) {
+//     let book = books[isbn];
+//     return new Promise((resolve,reject) => {
+//         if(book) {
+//             resolve(book);
+//         }else {
+//             reject("Unable to find Books!");
+//         };
+//     });
+// };
 
-public_users.get("/isbn/:isbn", (req,res) => {
-    const isbn = req.params.isbn;
-    getListBookIsbn(isbn).then(
-        (book) => res.send(book),
-        (err) => res.send(err)
-    );
-})
+// public_users.get("/isbn/:isbn", (req,res) => {
+//     const isbn = req.params.isbn;
+//     getListBookIsbn(isbn).then(
+//         (book) => res.send(book),
+//         (err) => res.send(err)
+//     );
+// })
+
+// Get book details based on ISBN using async-await
+public_users.get('/isbn/:isbn', async (req, res) => {
+    const {isbn} = req.params;
+    try{
+        let getListFromIsbn = books[isbn];
+        if(getListFromIsbn == undefined){
+            res.send("Unable to find books!")
+        }
+        res.send(await getListFromIsbn);
+    }catch(err){
+        err;
+    }
+});
 
 // Get book details based on author
 // public_users.get('/author/:author', (req, res) => {
@@ -91,30 +114,52 @@ public_users.get("/isbn/:isbn", (req,res) => {
 // });
 
 // Get book details based on author with promise
-function getListFromAuthor(author){
+// function getListFromAuthor(author){
+//     let authors = [];
+//     return new Promise((resolve,reject) => {
+//         for(var isbn in books) {
+//             let book = books[isbn];
+//             if(book.author === author){
+//                 authors.push(book);
+//             }
+//         }
+//         if(authors.length>0){
+//             resolve(authors);
+//         }else{
+//             reject("Unable to find Author!");
+//         };
+//     });
+// };
+
+// public_users.get("/author/:author", (req,res) => {
+//     const author = req.params.author;
+//     getListFromAuthor(author).then(
+//         (book) => res.send(book),
+//         (err) => res.send(err)
+//     )
+// });
+
+// Get book details based on author with async-await
+public_users.get('/author/:author', async(req,res,next) => {
+    const {author} = req.params;
     let authors = [];
-    return new Promise((resolve,reject) => {
-        for(var isbn in books) {
+    try{
+        for(var isbn in books){
             let book = books[isbn];
             if(book.author === author){
                 authors.push(book);
             }
         }
-        if(authors.length>0){
-            resolve(authors);
+        if(authors.length > 0){
+            res.send(await authors);
         }else{
-            reject("Unable to find Author!");
-        };
-    });
-};
-
-public_users.get("/author/:author", (req,res) => {
-    const author = req.params.author;
-    getListFromAuthor(author).then(
-        (book) => res.send(book),
-        (err) => res.send(err)
-    )
-});
+            res.send("Unable to find Books!")
+        }
+    }catch(err){
+        console.log(err);
+        throw err;
+    }
+})
 
 // Get all books based on title
 // public_users.get('/title/:title',function (req, res) {
@@ -133,30 +178,51 @@ public_users.get("/author/:author", (req,res) => {
 //     res.send(title);
 // });
 
-function getListFromTitle(title){
+// Get all books based on title with promise
+// function getListFromTitle(title){
+//     let titles = [];
+//     return new Promise((resolve,reject) => {
+//         for(var isbn in books) {
+//             let book = books[isbn];
+//             if(book.title === title){
+//                 titles.push(book);
+//             }
+//         }
+//         if(titles.length>0){
+//             resolve(titles);
+//         }else{
+//             reject("Unable to find titles!");
+//         };
+//     });
+// };
+
+// public_users.get("/title/:title", (req,res) => {
+//     const title = req.params.title;
+//     getListFromTitle(title).then(
+//         (book) => res.send(book),
+//         (err) => res.send(err)
+//     )
+// });
+
+// Get all books based on title with async-await
+public_users.get('/title/:title', async(req,res) => {
+    const {title} = req.params;
     let titles = [];
-    return new Promise((resolve,reject) => {
-        for(var isbn in books) {
+    try{
+        for(var isbn in books){
             let book = books[isbn];
             if(book.title === title){
                 titles.push(book);
             }
-        }
-        if(titles.length>0){
-            resolve(titles);
+        }if(titles.length > 0){
+            res.send(await titles)
         }else{
-            reject("Unable to find titles!");
-        };
-    });
-};
-
-public_users.get("/title/:title", (req,res) => {
-    const title = req.params.title;
-    getListFromTitle(title).then(
-        (book) => res.send(book),
-        (err) => res.send(err)
-    )
-});
+            res.send("Unable to find books!");
+        }
+    }catch(err){
+        throw err;
+    }
+})
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
